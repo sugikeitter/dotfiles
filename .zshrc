@@ -1,5 +1,6 @@
 # export PS1="\[\e[1;35m\][\u@\h \w \t]\n$ \[\e[0m\]"
-export PROMPT='%F{magenta}[%D %* %n@%m:%~]
+export PROMPT='
+%F{magenta}[%D %* %n@%m:%~]
 $%f '
 
 # aliases
