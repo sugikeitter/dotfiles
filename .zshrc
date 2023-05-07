@@ -3,6 +3,11 @@ export PROMPT='
 %F{magenta}[%D %* %n@%m:%~]
 $%f '
 
+### デモなどで外部公開用 (テーマは Solarized Light で、背景を少し濃い色 (FCE8AD) にしたもの)
+# export PROMPT='
+# %F{blue}[%* ec2-user@%y:%~]
+# $%f '
+
 # aliases
 alias ll='ls -l'
 alias la='ll -a'
