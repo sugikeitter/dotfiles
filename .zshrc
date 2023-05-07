@@ -3,7 +3,7 @@ export PROMPT='
 %F{magenta}[%D %* %n@%m:%~]
 $%f '
 
-### デモなどで外部公開用 (テーマは Solarized Light で、背景を少し濃い色 (FCE8AD) にしたもの)
+### デモなどで外部公開用 (テーマは Solarized Light で、背景を少し濃い色 (FCE8AD / FCE7B7 あたり) にしたもの)
 # export PROMPT='
 # %F{blue}[%* ec2-user@%y:%~]
 # $%f '
