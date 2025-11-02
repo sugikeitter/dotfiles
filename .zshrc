@@ -22,3 +22,7 @@ setopt hist_ignore_dups
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
 complete -C '/usr/local/bin/aws_completer' aws 
+
+
+# Strands CLI でデフォルトのモデルを指定したい場合
+alias strands='strands --model-config '"'"'{"model_id": "jp.anthropic.claude-sonnet-4-5-20250929-v1:0"}'"'"
