@@ -24,5 +24,30 @@ autoload -Uz compinit && compinit
 complete -C '/usr/local/bin/aws_completer' aws 
 
 
+##### OPTION #####
+
 # Strands CLI でデフォルトのモデルを指定したい場合
 alias strands='strands --model-config '"'"'{"model_id": "jp.anthropic.claude-sonnet-4-5-20250929-v1:0"}'"'"
+
+# kubenetes
+source <(kubectl completion zsh)
+compdef kubecolor=kubectl
+alias k='kubecolor'
+alias kubectl='kubecolor'
+alias kx='f() { [ "$1" ] && kubectl config use-context $1 || kubectl config current-context ; } ; f'
+alias kn='f() { [ "$1" ] && kubectl config set-context --current --namespace $1 || kubectl config view --minify | grep namespace | cut -d" " -f6 ; } ; f'
+
+# Claude Code
+## Enable Bedrock integration
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_REGION=ap-northeast-1
+## Recommended output token settings for Bedrock
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096
+export MAX_THINKING_TOKENS=1024
+## Using inference profile ID
+export ANTHROPIC_MODEL='jp.anthropic.claude-sonnet-4-5-20250929-v1:0'
+#export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
+
+# finch
+export DOCKER_HOST=unix:///Applications/Finch/lima/data/finch/sock/finch.sock
+export DOCKER_CONFIG=$HOME/.finch
