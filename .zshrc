@@ -1,3 +1,6 @@
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
 # export PS1="\[\e[1;35m\][\u@\h \w \t]\n$ \[\e[0m\]"
 export PROMPT='
 %F{magenta}[%D %* %n@%m:%~]
@@ -23,19 +26,38 @@ autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
 complete -C '/usr/local/bin/aws_completer' aws 
 
+# Created by `pipx` on 2024-05-10 02:04:57
+export PATH="$PATH:/Users/sugikei/.local/bin"
 
-##### OPTION #####
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Strands CLI でデフォルトのモデルを指定したい場合
-alias strands='strands --model-config '"'"'{"model_id": "jp.anthropic.claude-sonnet-4-5-20250929-v1:0"}'"'"
 
 # kubenetes
 source <(kubectl completion zsh)
 compdef kubecolor=kubectl
 alias k='kubecolor'
 alias kubectl='kubecolor'
+
 alias kx='f() { [ "$1" ] && kubectl config use-context $1 || kubectl config current-context ; } ; f'
 alias kn='f() { [ "$1" ] && kubectl config set-context --current --namespace $1 || kubectl config view --minify | grep namespace | cut -d" " -f6 ; } ; f'
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+
+export PATH=$HOME/.toolbox/bin:$PATH
+
+# finch
+export DOCKER_HOST=unix:///Applications/Finch/lima/data/finch/sock/finch.sock
+export DOCKER_CONFIG=$HOME/.finch
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+alias q='kiro-cli'
+
+
 
 # Claude Code
 ## Enable Bedrock integration
@@ -48,6 +70,7 @@ export MAX_THINKING_TOKENS=1024
 export ANTHROPIC_MODEL='jp.anthropic.claude-sonnet-4-5-20250929-v1:0'
 #export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
-# finch
-export DOCKER_HOST=unix:///Applications/Finch/lima/data/finch/sock/finch.sock
-export DOCKER_CONFIG=$HOME/.finch
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
