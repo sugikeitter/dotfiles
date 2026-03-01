@@ -30,9 +30,10 @@ complete -C '/usr/local/bin/aws_completer' aws
 export PATH="$PATH:/Users/sugikei/.local/bin"
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
+####### 遅いので使う時以外コメントアウト ########
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+############################################
 
 # kubenetes
 source <(kubectl completion zsh)
