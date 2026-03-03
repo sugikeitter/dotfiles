@@ -35,9 +35,21 @@ export NVM_DIR="$HOME/.nvm"
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ############################################
 nvm() {
-  unset -f nvm 
+  unset -f nvm node npm
   source "${NVM_DIR}/nvm.sh"
   nvm "$@"
+}
+
+node() {
+  unset -f nvm node npm
+  source "${NVM_DIR}/nvm.sh"
+  node "$@"
+}
+
+npm() {
+  unset -f nvm node npm
+  source "${NVM_DIR}/nvm.sh"
+  npm "$@"
 }
 
 
