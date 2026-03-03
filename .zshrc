@@ -29,18 +29,15 @@ complete -C '/usr/local/bin/aws_completer' aws
 # Created by `pipx` on 2024-05-10 02:04:57
 export PATH="$PATH:/Users/sugikei/.local/bin"
 
+export NVM_DIR="$HOME/.nvm"
 ####### 遅いので使う時以外コメントアウト ########
-# export NVM_DIR="$HOME/.nvm"
 #[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ############################################
 nvm() {
-  if [ -z "${NVM_DIR}" ]; then
-    export NVM_DIR="$HOME/.nvm"
-    unset -f nvm 
-    source "${NVM_DIR}/nvm.sh"
-    nvm "$@"
-  fi  
+  unset -f nvm 
+  source "${NVM_DIR}/nvm.sh"
+  nvm "$@"
 }
 
 
