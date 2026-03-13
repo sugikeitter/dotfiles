@@ -76,50 +76,87 @@ export DOCKER_CONFIG=$HOME/.finch
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 # Kiro CLI
 alias q='kiro-cli'
+
+# Claude Code
+## Enable Bedrock integration (https://code.claude.com/docs/en/third-party-integrations#amazon-bedrock)
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_REGION=ap-northeast-1
+## Recommended output token settings for Bedrock
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096
+export MAX_THINKING_TOKENS=1024
+## Bedrock model IDs
+export ANTHROPIC_DEFAULT_OPUS_MODEL='global.anthropic.claude-opus-4-6-v1'
+export ANTHROPIC_DEFAULT_SONNET_MODEL='global.anthropic.claude-sonnet-4-6'
+export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001-v1:0'
+## Using inference profile ID
+#export ANTHROPIC_MODEL='jp.anthropic.claude-sonnet-4-5-20250929-v1:0'
+#export ANTHROPIC_MODEL='global.anthropic.claude-opus-4-6-v1'
+#export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
+
 ### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
 tojp() {
+  if [[ -z "${content//[$'\n']/}" ]]; then                                               
+    echo "Clipboard is empty."
+    return                                                                               
+  fi      
+  local content
+  content="$(pbpaste)"
+
+  echo "Clipboard content:"
+  echo "---"
+  echo "$content"
+  echo "---"
+
+  read -q "reply?Proceed to trim spaces? (y/N) "
+  echo
+
   local ts="${$}.$(date +%s)"
   local global=~/.kiro/settings/mcp.json
   local workspace=.kiro/settings/mcp.json
   local moved=()
 
-  for f in "$global" "$workspace"; do
-    if [[ -f "$f" ]]; then
-      mv "$f" "${f}.backup.${ts}"
-      moved+=("$f")
-    fi
-  done
-
-  _to_jp_restore() {
-    for f in "${moved[@]}"; do
-      [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+  if [[ "$reply" == "y" ]]; then
+    for f in "$global" "$workspace"; do
+      if [[ -f "$f" ]]; then
+        mv "$f" "${f}.backup.${ts}"
+        moved+=("$f")
+      fi
     done
-  }
-  trap '_to_jp_restore' EXIT INT TERM
 
-  local input
-  if [[ ! -t 0 ]]; then
-    input="$(cat)"
-  elif [[ $# -gt 0 ]]; then
-    input="$*"
-  else
-    echo "Paste text, then press Ctrl+D to translate:" >&2
-    input="$(cat)"
-  fi
+    _to_jp_restore() {
+      for f in "${moved[@]}"; do
+        [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+      done
+    }
+    trap '_to_jp_restore' EXIT INT TERM
 
-  if [[ -z "$input" ]]; then
-    echo "Error: empty input" >&2
+    local input
+    if [[ ! -t 0 ]]; then
+      input="$(cat)"
+    elif [[ $# -gt 0 ]]; then
+      input="$*"
+    else
+      echo "Paste text, then press Ctrl+D to translate:" >&2
+      input="$(cat)"
+    fi
+
+    if [[ -z "$input" ]]; then
+      echo "Error: empty input" >&2
+      _to_jp_restore
+      trap - EXIT INT TERM
+      return 1
+    fi
+
+    local prompt
+    printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$(pbpaste)"
+    echo ">>>"
+    kiro-cli chat "$prompt" --model auto --no-interactive
+
     _to_jp_restore
     trap - EXIT INT TERM
-    return 1
+  else
+    echo "Aborted."
   fi
-
-  local prompt
-  printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$input"
-  kiro-cli chat "$prompt" --model auto --no-interactive
-
-  _to_jp_restore
-  trap - EXIT INT TERM
 }
 toen() {
   local ts="${$}.$(date +%s)"
@@ -165,23 +202,6 @@ toen() {
   _to_jp_restore
   trap - EXIT INT TERM
 }
-
-# Claude Code
-## Enable Bedrock integration (https://code.claude.com/docs/en/third-party-integrations#amazon-bedrock)
-export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION=ap-northeast-1
-## Recommended output token settings for Bedrock
-export CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096
-export MAX_THINKING_TOKENS=1024
-## Bedrock model IDs
-export ANTHROPIC_DEFAULT_OPUS_MODEL='global.anthropic.claude-opus-4-6-v1'
-export ANTHROPIC_DEFAULT_SONNET_MODEL='global.anthropic.claude-sonnet-4-6'
-export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001-v1:0'
-## Using inference profile ID
-#export ANTHROPIC_MODEL='jp.anthropic.claude-sonnet-4-5-20250929-v1:0'
-#export ANTHROPIC_MODEL='global.anthropic.claude-opus-4-6-v1'
-#export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
-
 
 # Kiro CLI post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
