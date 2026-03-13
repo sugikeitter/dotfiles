@@ -95,19 +95,23 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 
 ### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
 tojp() {
+  local c_label c_reset
+  c_reset=$'\e[0m'
+  c_label=$'\e[35m'   # dark purple
+
   local content
   content="$(pbpaste)"
   if [[ -z "${content//[$'\n']/}" ]]; then                                               
-    echo "Clipboard is empty."
+    echo "${c_err}Clipboard is empty.${c_reset}"
     return                                                                               
   fi      
 
-  echo "Clipboard content:"
-  echo "---"
+  echo "${c_label}Clipboard content:${c_reset}"
+  echo "${c_label}---${c_reset}"
   echo "$content"
-  echo "---"
+  echo "${c_label}---${c_reset}"
 
-  read -q "reply?Proceed to trim spaces? (y/N) "
+  read -q "reply?${c_label}Proceed to trim spaces? (y/N) ${c_reset}"
   echo
 
   local ts="${$}.$(date +%s)"
@@ -137,7 +141,7 @@ tojp() {
     _to_jp_restore
     trap - EXIT INT TERM
   else
-    echo "Aborted."
+    echo "${c_err}Aborted.${c_reset}"
   fi
 }
 toen() {
