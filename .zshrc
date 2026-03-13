@@ -97,7 +97,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 tojp() {
   local c_label c_reset
   c_reset=$'\e[0m'
-  c_label=$'\e[35m'   # dark purple
+  c_label=$'\e[38;5;140m'   # purple
 
   local content
   content="$(pbpaste)"
@@ -147,9 +147,9 @@ tojp() {
   fi
 }
 toen() {
-    local c_label c_reset
+  local c_label c_reset
   c_reset=$'\e[0m'
-  c_label=$'\e[35m'   # dark purple
+  c_label=$'\e[38;5;140m'   # purple
 
   local content
   content="$(pbpaste)"
