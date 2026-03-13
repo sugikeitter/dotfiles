@@ -106,9 +106,11 @@ tojp() {
     return                                                                               
   fi      
 
+  local display
+  display="${content//$'\e'/\\e}"
   echo "${c_label}Clipboard content:${c_reset}"
   echo "${c_label}---${c_reset}"
-  echo "$content"
+  print -r -- "${display}"
   echo "${c_label}---${c_reset}"
 
   read -q "reply?${c_label}Proceed to trim spaces? (y/N) ${c_reset}"
@@ -145,48 +147,56 @@ tojp() {
   fi
 }
 toen() {
+    local c_label c_reset
+  c_reset=$'\e[0m'
+  c_label=$'\e[35m'   # dark purple
+
+  local content
+  content="$(pbpaste)"
+  if [[ -z "${content//[$'\n']/}" ]]; then                                               
+    echo "${c_err}Clipboard is empty.${c_reset}"
+    return                                                                               
+  fi      
+
+  local display
+  display="${content//$'\e'/\\e}"
+  echo "${c_label}Clipboard content:${c_reset}"
+  echo "${c_label}---${c_reset}"
+  print -r -- "${display}"
+  echo "${c_label}---${c_reset}"
+
+  read -q "reply?${c_label}Proceed to trim spaces? (y/N) ${c_reset}"
+  echo
+
   local ts="${$}.$(date +%s)"
   local global=~/.kiro/settings/mcp.json
   local workspace=.kiro/settings/mcp.json
   local moved=()
 
-  for f in "$global" "$workspace"; do
-    if [[ -f "$f" ]]; then
-      mv "$f" "${f}.backup.${ts}"
-      moved+=("$f")
-    fi
-  done
-
-  _to_jp_restore() {
-    for f in "${moved[@]}"; do
-      [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+  if [[ "$reply" == "y" ]]; then
+    for f in "$global" "$workspace"; do
+      if [[ -f "$f" ]]; then
+        mv "$f" "${f}.backup.${ts}"
+        moved+=("$f")
+      fi
     done
-  }
-  trap '_to_jp_restore' EXIT INT TERM
 
-  local input
-  if [[ ! -t 0 ]]; then
-    input="$(cat)"
-  elif [[ $# -gt 0 ]]; then
-    input="$*"
-  else
-    echo "Paste text, then press Ctrl+D to translate:" >&2
-    input="$(cat)"
-  fi
+    _to_jp_restore() {
+      for f in "${moved[@]}"; do
+        [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+      done
+    }
+    trap '_to_jp_restore' EXIT INT TERM
 
-  if [[ -z "$input" ]]; then
-    echo "Error: empty input" >&2
+    local prompt
+    printf -v prompt '%s\n---\n%s' "以下の文章を英語に翻訳して" "$(pbpaste)"
+    kiro-cli chat "$prompt" --model auto --no-interactive
+
     _to_jp_restore
     trap - EXIT INT TERM
-    return 1
+  else
+    echo "${c_err}Aborted.${c_reset}"
   fi
-
-  local prompt
-  printf -v prompt '%s\n---\n%s' "以下の文章を英語に翻訳して" "$input"
-  kiro-cli chat "$prompt" --model auto --no-interactive
-
-  _to_jp_restore
-  trap - EXIT INT TERM
 }
 
 # Kiro CLI post block. Keep at the bottom of this file.
