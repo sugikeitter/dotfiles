@@ -77,8 +77,8 @@ export DOCKER_CONFIG=$HOME/.finch
 # Kiro CLI
 alias q='kiro-cli'
 ### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
-to-en() {
-  local ts=$(date +%s)
+tojp() {
+  local ts="${$}.$(date +%s)"
   local global=~/.kiro/settings/mcp.json
   local workspace=.kiro/settings/mcp.json
   local moved=()
@@ -90,16 +90,39 @@ to-en() {
     fi
   done
 
-  kiro-cli chat "以下の文章を英語に翻訳して\n---\n$@" --model auto --no-interactive
+  _to_jp_restore() {
+    for f in "${moved[@]}"; do
+      [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+    done
+  }
+  trap '_to_jp_restore' EXIT INT TERM
 
-  for f in "${moved[@]}"; do
-    mv "${f}.backup.${ts}" "$f"
-  done
+  local input
+  if [[ ! -t 0 ]]; then
+    input="$(cat)"
+  elif [[ $# -gt 0 ]]; then
+    input="$*"
+  else
+    echo "Paste text, then press Ctrl+D to translate:" >&2
+    input="$(cat)"
+  fi
+
+  if [[ -z "$input" ]]; then
+    echo "Error: empty input" >&2
+    _to_jp_restore
+    trap - EXIT INT TERM
+    return 1
+  fi
+
+  local prompt
+  printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$input"
+  kiro-cli chat "$prompt" --model auto --no-interactive
+
+  _to_jp_restore
+  trap - EXIT INT TERM
 }
-
-
-to-jp() {
-  local ts=$(date +%s)
+toen() {
+  local ts="${$}.$(date +%s)"
   local global=~/.kiro/settings/mcp.json
   local workspace=.kiro/settings/mcp.json
   local moved=()
@@ -111,11 +134,36 @@ to-jp() {
     fi
   done
 
-  kiro-cli chat "以下の文章を日本語に翻訳して\n---\n$@" --model auto --no-interactive
+  _to_jp_restore() {
+    for f in "${moved[@]}"; do
+      [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+    done
+  }
+  trap '_to_jp_restore' EXIT INT TERM
 
-  for f in "${moved[@]}"; do
-    mv "${f}.backup.${ts}" "$f"
-  done
+  local input
+  if [[ ! -t 0 ]]; then
+    input="$(cat)"
+  elif [[ $# -gt 0 ]]; then
+    input="$*"
+  else
+    echo "Paste text, then press Ctrl+D to translate:" >&2
+    input="$(cat)"
+  fi
+
+  if [[ -z "$input" ]]; then
+    echo "Error: empty input" >&2
+    _to_jp_restore
+    trap - EXIT INT TERM
+    return 1
+  fi
+
+  local prompt
+  printf -v prompt '%s\n---\n%s' "以下の文章を英語に翻訳して" "$input"
+  kiro-cli chat "$prompt" --model auto --no-interactive
+
+  _to_jp_restore
+  trap - EXIT INT TERM
 }
 
 # Claude Code
