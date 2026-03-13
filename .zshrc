@@ -74,9 +74,49 @@ export DOCKER_HOST=unix:///Applications/Finch/lima/data/finch/sock/finch.sock
 export DOCKER_CONFIG=$HOME/.finch
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+# Kiro CLI
 alias q='kiro-cli'
+### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
+to-en() {
+  local ts=$(date +%s)
+  local global=~/.kiro/settings/mcp.json
+  local workspace=.kiro/settings/mcp.json
+  local moved=()
+
+  for f in "$global" "$workspace"; do
+    if [[ -f "$f" ]]; then
+      mv "$f" "${f}.backup.${ts}"
+      moved+=("$f")
+    fi
+  done
+
+  kiro-cli chat "以下の文章を英語に翻訳して\n---\n$@" --model auto --no-interactive
+
+  for f in "${moved[@]}"; do
+    mv "${f}.backup.${ts}" "$f"
+  done
+}
 
 
+to-jp() {
+  local ts=$(date +%s)
+  local global=~/.kiro/settings/mcp.json
+  local workspace=.kiro/settings/mcp.json
+  local moved=()
+
+  for f in "$global" "$workspace"; do
+    if [[ -f "$f" ]]; then
+      mv "$f" "${f}.backup.${ts}"
+      moved+=("$f")
+    fi
+  done
+
+  kiro-cli chat "以下の文章を日本語に翻訳して\n---\n$@" --model auto --no-interactive
+
+  for f in "${moved[@]}"; do
+    mv "${f}.backup.${ts}" "$f"
+  done
+}
 
 # Claude Code
 ## Enable Bedrock integration (https://code.claude.com/docs/en/third-party-integrations#amazon-bedrock)
@@ -93,7 +133,6 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 #export ANTHROPIC_MODEL='jp.anthropic.claude-sonnet-4-5-20250929-v1:0'
 #export ANTHROPIC_MODEL='global.anthropic.claude-opus-4-6-v1'
 #export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
-
 
 
 # Kiro CLI post block. Keep at the bottom of this file.
