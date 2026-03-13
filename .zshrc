@@ -132,7 +132,6 @@ tojp() {
 
     local prompt
     printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$(pbpaste)"
-    echo ">>>"
     kiro-cli chat "$prompt" --model auto --no-interactive
 
     _to_jp_restore
