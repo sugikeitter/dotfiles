@@ -113,15 +113,15 @@ tojp() {
   print -r -- "${display}"
   echo "${c_label}---${c_reset}"
 
-  read -q "reply?${c_label}Proceed to trim spaces? (y/N) ${c_reset}"
+  read "reply?${c_label}Proceed to translate? (y/N) ${c_reset}"   # read -q "XXX" にすると y 入力の後 Enter 不要
   echo
 
-  local ts="${$}.$(date +%s)"
-  local global=~/.kiro/settings/mcp.json
-  local workspace=.kiro/settings/mcp.json
-  local moved=()
-
   if [[ "$reply" == "y" ]]; then
+    local ts="${$}.$(date +%s)"
+    local global=~/.kiro/settings/mcp.json
+    local workspace=.kiro/settings/mcp.json
+    local moved=()
+
     for f in "$global" "$workspace"; do
       if [[ -f "$f" ]]; then
         mv "$f" "${f}.backup.${ts}"
@@ -165,15 +165,15 @@ toen() {
   print -r -- "${display}"
   echo "${c_label}---${c_reset}"
 
-  read -q "reply?${c_label}Proceed to trim spaces? (y/N) ${c_reset}"
+  read "reply?${c_label}Proceed to translate? (y/N) ${c_reset}"   # read -q "XXX" にすると y 入力の後 Enter 不要
   echo
 
-  local ts="${$}.$(date +%s)"
-  local global=~/.kiro/settings/mcp.json
-  local workspace=.kiro/settings/mcp.json
-  local moved=()
-
   if [[ "$reply" == "y" ]]; then
+    local ts="${$}.$(date +%s)"
+    local global=~/.kiro/settings/mcp.json
+    local workspace=.kiro/settings/mcp.json
+    local moved=()
+
     for f in "$global" "$workspace"; do
       if [[ -f "$f" ]]; then
         mv "$f" "${f}.backup.${ts}"
