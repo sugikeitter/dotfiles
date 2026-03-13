@@ -95,12 +95,12 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 
 ### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
 tojp() {
+  local content
+  content="$(pbpaste)"
   if [[ -z "${content//[$'\n']/}" ]]; then                                               
     echo "Clipboard is empty."
     return                                                                               
   fi      
-  local content
-  content="$(pbpaste)"
 
   echo "Clipboard content:"
   echo "---"
@@ -129,23 +129,6 @@ tojp() {
       done
     }
     trap '_to_jp_restore' EXIT INT TERM
-
-    local input
-    if [[ ! -t 0 ]]; then
-      input="$(cat)"
-    elif [[ $# -gt 0 ]]; then
-      input="$*"
-    else
-      echo "Paste text, then press Ctrl+D to translate:" >&2
-      input="$(cat)"
-    fi
-
-    if [[ -z "$input" ]]; then
-      echo "Error: empty input" >&2
-      _to_jp_restore
-      trap - EXIT INT TERM
-      return 1
-    fi
 
     local prompt
     printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$(pbpaste)"
