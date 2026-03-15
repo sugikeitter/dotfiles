@@ -94,17 +94,17 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 #export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
 ### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
-tojp() {
+_translate() {
   local c_label c_reset
   c_reset=$'\e[0m'
   c_label=$'\e[38;5;140m'   # purple
 
   local content
   content="$(pbpaste)"
-  if [[ -z "${content//[$'\n']/}" ]]; then                                               
+  if [[ -z "${content//[$'\n']/}" ]]; then
     echo "${c_err}Clipboard is empty.${c_reset}"
-    return                                                                               
-  fi      
+    return
+  fi
 
   local display
   display="${content//$'\e'/\\e}"
@@ -137,7 +137,7 @@ tojp() {
     trap '_to_jp_restore' EXIT INT TERM
 
     local prompt
-    printf -v prompt '%s\n---\n%s' "以下の文章を日本語に翻訳して" "$(pbpaste)"
+    printf -v prompt '%s\n---\n%s' "以下の文章を${1}に翻訳して" "$(pbpaste)"
     kiro-cli chat "$prompt" --model auto --no-interactive
 
     _to_jp_restore
@@ -146,57 +146,11 @@ tojp() {
     echo "${c_err}Aborted.${c_reset}"
   fi
 }
+tojp() {
+  _translate "日本語"
+}
 toen() {
-  local c_label c_reset
-  c_reset=$'\e[0m'
-  c_label=$'\e[38;5;140m'   # purple
-
-  local content
-  content="$(pbpaste)"
-  if [[ -z "${content//[$'\n']/}" ]]; then                                               
-    echo "${c_err}Clipboard is empty.${c_reset}"
-    return                                                                               
-  fi      
-
-  local display
-  display="${content//$'\e'/\\e}"
-  echo "${c_label}Clipboard content:${c_reset}"
-  echo "${c_label}---${c_reset}"
-  print -r -- "${display}"
-  echo "${c_label}---${c_reset}"
-
-  read "reply?${c_label}Proceed to translate? (y/N) ${c_reset}"   # read -q "XXX" にすると y 入力の後 Enter 不要
-  echo
-
-  if [[ "$reply" == "y" ]]; then
-    local ts="${$}.$(date +%s)"
-    local global=~/.kiro/settings/mcp.json
-    local workspace=.kiro/settings/mcp.json
-    local moved=()
-
-    for f in "$global" "$workspace"; do
-      if [[ -f "$f" ]]; then
-        mv "$f" "${f}.backup.${ts}"
-        moved+=("$f")
-      fi
-    done
-
-    _to_jp_restore() {
-      for f in "${moved[@]}"; do
-        [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
-      done
-    }
-    trap '_to_jp_restore' EXIT INT TERM
-
-    local prompt
-    printf -v prompt '%s\n---\n%s' "以下の文章を英語に翻訳して" "$(pbpaste)"
-    kiro-cli chat "$prompt" --model auto --no-interactive
-
-    _to_jp_restore
-    trap - EXIT INT TERM
-  else
-    echo "${c_err}Aborted.${c_reset}"
-  fi
+  _translate "英語"
 }
 
 # Kiro CLI post block. Keep at the bottom of this file.
