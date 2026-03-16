@@ -97,27 +97,42 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 #export ANTHROPIC_MODEL='global.anthropic.claude-opus-4-6-v1'
 #export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
-### kiro-cli を使った翻訳のワンライナー、kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的にmcp.jsonを退避しているので多重で Kiro IDE/kiro-cli 使う場合は注意
+# kiro-cli を使った翻訳のワンライナー
+## kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的に mcp.json を退避しているため、
+## 多重で Kiro IDE/kiro-cli 使う場合は注意
+
 _translate() {
-  local c_label c_reset
-  c_reset=$'\e[0m'
-  c_label=$'\e[38;5;140m'   # purple
+  local max_chars=${TRANSLATE_MAX_CHARS:-30000}
+  local preview_chars=$(( 1000 > max_chars / 10 ? max_chars / 10 : 1000))
+
+  p_info() { printf '\e[38;5;140m%s\e[0m\n' "$*"; }
+  p_err()  { printf '\e[31m%s\e[0m\n'       "$*"; }
 
   local content
   content="$(pbpaste)"
   if [[ -z "${content//[$'\n']/}" ]]; then
-    echo "${c_err}Clipboard is empty.${c_reset}"
+    p_err 'Clipboard is empty.'
+    return
+  fi
+
+  local len=${#content}
+  if (( len > max_chars )); then
+    p_info "Clipboard content (first ~${preview_chars} chars):"
+    p_info '---'
+    print -r -- "${content:0:$preview_chars}"
+    p_info '---'
+    p_err "Clipboard has ${len} characters (> ${max_chars}). Please check the content and try again."
     return
   fi
 
   local display
   display="${content//$'\e'/\\e}"
-  echo "${c_label}Clipboard content:${c_reset}"
-  echo "${c_label}---${c_reset}"
+  p_info 'Clipboard content:'
+  p_info '---'
   print -r -- "${display}"
-  echo "${c_label}---${c_reset}"
+  p_info '---'
 
-  printf "${c_label}Proceed to translate? (y/N) ${c_reset}"
+  printf '\e[38;5;140m%s\e[0m ' 'Proceed to translate? (y/N)'
   read -r reply
   echo
 
@@ -148,7 +163,7 @@ _translate() {
     _to_jp_restore
     trap - EXIT INT TERM
   else
-    echo "${c_err}Aborted.${c_reset}"
+    p_err 'Aborted.'
   fi
 }
 tojp() {
