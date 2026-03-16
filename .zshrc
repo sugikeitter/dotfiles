@@ -113,7 +113,8 @@ _translate() {
   print -r -- "${display}"
   echo "${c_label}---${c_reset}"
 
-  read "reply?${c_label}Proceed to translate? (y/N) ${c_reset}"   # read -q "XXX" にすると y 入力の後 Enter 不要
+  printf "${c_label}Proceed to translate? (y/N) ${c_reset}"
+  read -r reply
   echo
 
   if [[ "$reply" == "y" ]]; then
