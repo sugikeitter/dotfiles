@@ -75,7 +75,11 @@ export DOCKER_CONFIG=$HOME/.finch
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 # Kiro CLI
-alias q='kiro-cli'
+## global に MCP を設定すると kiro-cli 起動時に毎回 mcp の起動も待つので、必要な時のみ mcp 使うようにしたい
+## 事前に `mkdir -p ~/_kiro-cli-ws/useful-mcps` などでフォルダ作成と、書くディレクトリに .kiro/setting/mcp.json を作成しておく
+alias q='cd ~/ && kiro-cli'
+alias q-mcp='cd ~/_kiro-cli-ws/useful-mcps && kiro-cli'
+alias q-aws='cd ~/_kiro-cli-ws/aws-knowledge-mcp-server && kiro-cli'
 
 # Claude Code
 ## Enable Bedrock integration (https://code.claude.com/docs/en/third-party-integrations#amazon-bedrock)
