@@ -98,9 +98,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='global.anthropic.claude-haiku-4-5-20251001
 #export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
 # kiro-cli を使った翻訳のワンライナー
-## kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的に mcp.json を退避しているため、
-## 多重で Kiro IDE/kiro-cli 使う場合は注意
-
+## kiro-cli 起動時に mcp が読み込まれると遅くなるので一時的に mcp.json を退避する処理を入れる場合、多重で Kiro IDE/kiro-cli 使う場合は注意
 _translate() {
   local max_chars=${TRANSLATE_MAX_CHARS:-30000}
   local preview_chars=$(( 1000 > max_chars / 10 ? max_chars / 10 : 1000))
@@ -137,30 +135,30 @@ _translate() {
   echo
 
   if [[ "$reply" == "y" ]]; then
-    local ts="${$}.$(date +%s)"
-    local global=~/.kiro/settings/mcp.json
-    local workspace=.kiro/settings/mcp.json
-    local moved=()
-
-    for f in "$global" "$workspace"; do
-      if [[ -f "$f" ]]; then
-        mv "$f" "${f}.backup.${ts}"
-        moved+=("$f")
-      fi
-    done
-
-    _to_jp_restore() {
-      for f in "${moved[@]}"; do
-        [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
-      done
-    }
-    trap '_to_jp_restore' EXIT INT TERM
+#    local ts="${$}.$(date +%s)"
+#    local global=~/.kiro/settings/mcp.json
+#    local workspace=.kiro/settings/mcp.json
+#    local moved=()
+#
+#    for f in "$global" "$workspace"; do
+#      if [[ -f "$f" ]]; then
+#        mv "$f" "${f}.backup.${ts}"
+#        moved+=("$f")
+#      fi
+#    done
+#
+#    _to_jp_restore() {
+#      for f in "${moved[@]}"; do
+#        [[ -f "${f}.backup.${ts}" ]] && mv "${f}.backup.${ts}" "$f"
+#      done
+#    }
+#    trap '_to_jp_restore' EXIT INT TERM
 
     local prompt
     printf -v prompt '%s\n---\n%s' "以下の文章を${1}に翻訳して" "$(pbpaste)"
-    kiro-cli chat "$prompt" --model auto --no-interactive
+    cd ~/ && kiro-cli chat "$prompt" --model auto --no-interactive
 
-    _to_jp_restore
+#    _to_jp_restore
     trap - EXIT INT TERM
   else
     p_err 'Aborted.'
