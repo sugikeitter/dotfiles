@@ -156,7 +156,7 @@ _translate() {
 
     local prompt
     printf -v prompt '%s\n---\n%s' "以下の文章を${1}に翻訳して" "$(pbpaste)"
-    cd ~/ && kiro-cli chat "$prompt" --model auto --no-interactive
+    cd ~/ && kiro-cli chat "$prompt" --model auto --legacy-ui --no-interactive
 
 #    _to_jp_restore
     trap - EXIT INT TERM
